@@ -3,7 +3,7 @@ const password = "x";
 document.querySelector('#user-name').innerHTML = userName;
 
 //if trying it on a phone, use this instead...
-const socket = io.connect('https://192.168.1.57:8181/',{
+const socket = io.connect('https://192.168.68.203:8181/',{
 //const socket = io.connect('https://localhost:8181/',{
     auth: {
         userName,password
@@ -83,7 +83,7 @@ const fetchUserMedia = ()=>{
         try{
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
-                // audio: true,
+                audio: true,
             });
             localVideoEl.srcObject = stream;
             localStream = stream;    
@@ -134,6 +134,9 @@ const createPeerConnection = (offerObj)=>{
                 remoteStream.addTrack(track,remoteStream);
                 console.log("Here's an exciting moment... fingers cross")
             })
+                // Start extracting frames at regular intervals
+        setInterval(extractAndSendFrame, 100); // 100ms interval for frame extraction
+
         })
 
         if(offerObj){
@@ -150,6 +153,37 @@ const createPeerConnection = (offerObj)=>{
 const addNewIceCandidate = iceCandidate=>{
     peerConnection.addIceCandidate(iceCandidate)
     console.log("======Added Ice Candidate======")
+}
+
+// Function to extract frames from remote video and send to Python
+function extractAndSendFrame() {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = remoteVideoEl.videoWidth;
+    canvas.height = remoteVideoEl.videoHeight;
+
+    // Draw the current frame from the remote video element
+    context.drawImage(remoteVideoEl, 0, 0, canvas.width, canvas.height);
+
+    // Convert the canvas content to base64 (or blob, depending on your needs)
+    const frameData = canvas.toDataURL('image/png'); // example as base64
+
+    // Send frameData to Python server via WebSocket or another method
+    sendFrameToPython(frameData);
+}
+
+// Function to send frame data to Python server
+function sendFrameToPython(frameData) {
+    fetch('http://localhost:5000/receive_frame', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'frame=' + encodeURIComponent(frameData),
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error sending frame data:', error));
 }
 
 
