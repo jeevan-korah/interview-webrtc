@@ -20,6 +20,10 @@ socket.on('receivedIceCandidateFromServer',iceCandidate=>{
     console.log(iceCandidate)
 })
 
+// Example socket event trigger after the remote user answers
+socket.emit('remoteUserAnswer', { userId: remoteUserId });
+
+
 function createOfferEls(offers){
     //make green answer button for this new offer
     const answerEl = document.querySelector('#answer');
