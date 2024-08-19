@@ -206,8 +206,8 @@ function sendFrameToPython(frameData) {
         },
         body: 'frame=' + encodeURIComponent(frameData),
     })
-    .then(response => response.text())
-    .then(data => console.log(data))
+    .then(response => response.json())
+    .then(data => {console.log('Gaze Coordinates: ',data)})
     .catch(error => console.error('Error sending frame data:', error));
 }
 //FUNCTION FOR GOING INTO FULL SCREEN MODE
