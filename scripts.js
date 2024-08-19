@@ -158,7 +158,7 @@ const createPeerConnection = (offerObj)=>{
         //At this point the user has connected to the call and the peer connection is set up
         //video is being sent from the user to the host
                 // Start extracting frames at regular intervals
-        setInterval(extractAndSendFrame, 100); // 100ms interval for frame extraction
+        setInterval(extractAndSendFrame, 500); // 100ms interval for frame extraction
 
 
 
@@ -206,10 +206,15 @@ function sendFrameToPython(frameData) {
         },
         body: 'frame=' + encodeURIComponent(frameData),
     })
-    .then(response => response.json())
-    .then(data => {console.log('Gaze Coordinates: ',data)})
+    .then(response => response.json())  // Parse the JSON response from Python
+    .then(data => {
+        // Log the received coordinates to the console
+        console.log('Gaze Coordinates:', data.x, data.y);
+        // Use the received coordinates (data.x, data.y) as needed in your application
+    })
     .catch(error => console.error('Error sending frame data:', error));
 }
+
 //FUNCTION FOR GOING INTO FULL SCREEN MODE
 // Function for forcing full screen mode
 function goFullScreen() {
